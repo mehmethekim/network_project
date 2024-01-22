@@ -2,7 +2,7 @@ import random
 from packet import Packet
 import threading
 import time
-SLEEP_MS = 1000.0
+SLEEP_MS = 200.0
 #There will be 4 packet generators that are working in parallel.
 class PacketGenerator:
     def __init__(self, id,scheduler,packet_length=100, generation_rate=100, distribution_mean=3, distribution_std=1):
@@ -18,7 +18,7 @@ class PacketGenerator:
         self.packet_counter = 0
     def generate_packets(self):
         # Generate the number of packets from a Gaussian distribution
-        num_packets = max(1, int(random.gauss(self.distribution_mean, self.distribution_std)))# minimum 1 packet is generated
+        num_packets = max(1, int(random.gauss(self.distribution_mean*self.scheduler.network_load, self.distribution_std)))# minimum 1 packet is generated
         current_time_ms = int(time.time() * 1000)
         packets = []
         # Generate packets with a fixed size

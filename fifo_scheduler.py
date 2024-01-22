@@ -2,8 +2,8 @@ from scheduler import BaseScheduler
 import time
 MIN_BYTE_SEND = 10
 class FIFOScheduler(BaseScheduler):
-    def __init__(self, num_of_input_ports=4):
-        super().__init__(num_of_input_ports)
+    def __init__(self,num_of_input_ports=4):
+        super().__init__("FIFO",num_of_input_ports)
     
     def serve_packets(self):
         served_packets = []
@@ -18,7 +18,8 @@ class FIFOScheduler(BaseScheduler):
                     break
                 packet = self.output_queue.get()#Get the packet from the output queue.
                 if not packet.is_done():
-                    packet.serve(MIN_BYTE_SEND)
+                    serving_amount = min(MIN_BYTE_SEND, packet.size - packet.served_size)
+                    packet.serve(serving_amount)
                 
                 if packet.is_done():
                     packet.serve_time = int(time.time() * 1000)
