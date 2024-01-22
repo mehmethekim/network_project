@@ -42,3 +42,6 @@ class PacketGenerator:
     def stop(self):
         self.stop_event.set()
         self.thread.join()
+        
+        
+        

@@ -17,7 +17,7 @@ class BaseScheduler:
         self.latency_data = []  # List to store latency data
         self.queue_fairness_data = []  # List to store queue fairness data
         self.served_percentage_data = []  # List to store served percentage data
-
+        self.network_load_list = []
         self.distribution_mean = distribution_mean
         self.packet_length = packet_length
         for i in range(num_of_input_ports):
@@ -98,36 +98,35 @@ class BaseScheduler:
                 served_percentage[packet.incoming_port] += 1 / total_served * 100
             
             self.served_percentage_data.append(served_percentage)
-            
+            self.network_load_list.append(self.network_load)
             if time_tick %20 == 0:
                 if self.network_load < 1.1:
                     self.network_load += 0.1
             time_tick += 1
             time.sleep(SLEEP_MS/1000.0)
-
     def stop_generators(self):
         for generator in self.generators:
             generator.stop()
     def plot_data(self):
         # Plot latency data
         plt.figure(figsize=(12, 6))
-        plt.subplot(4 ,1, 1)
+        plt.subplot(3 ,1, 1)
         plt.plot(self.latency_data, label='Latency')
         plt.title('Latency Over Time')
         plt.xlabel('Time (ticks)')
         plt.ylabel('Latency (seconds)')
         plt.legend()
 
-        # Plot queue fairness data
-        plt.subplot(4, 1, 2)
-        plt.plot(self.queue_fairness_data, label='Queue Fairness')
-        plt.title('Queue Fairness Over Time')
-        plt.xlabel('Time (ticks)')
-        plt.ylabel('Queue Fairness')
-        plt.legend()
+        # # Plot queue fairness data
+        # plt.subplot(4, 1, 2)
+        # plt.plot(self.queue_fairness_data, label='Queue Fairness')
+        # plt.title('Queue Fairness Over Time')
+        # plt.xlabel('Time (ticks)')
+        # plt.ylabel('Queue Fairness')
+        # plt.legend()
 
         # Plot served percentage data
-        plt.subplot(4, 1, 3)
+        plt.subplot(3, 1, 2)
         for i in range(self.num_of_input_ports):
             plt.plot([percentage[i] for percentage in self.served_percentage_data], label=f'Port {i} Served Percentage')
 
@@ -136,6 +135,13 @@ class BaseScheduler:
         plt.ylabel('Served Percentage')
         plt.legend()
         
+        #Plot network load
+        plt.subplot(3,1,3)
+        plt.plot(self.network_load_list,label='Network Load')
+        plt.title('Network Load Over Time')
+        plt.xlabel('Time (ticks)')
+        plt.ylabel('Network Load')
+        plt.legend()
         
         plt.tight_layout()
         plt.savefig(f"{self.name}plot.png")

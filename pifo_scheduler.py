@@ -41,7 +41,13 @@ class PIFOScheduler(BaseScheduler):
                 self.output_queue.put(selected_packet)  # Enqueue the packet to the output queue
                 self.tokens[selected_queue] += 1  # Decrease tokens for the selected port
                 scheduled_packet_count += 1
-    
+                
+    def enqueue_to_pifo(self, packet):
+        # Enqueue the packet to the PIFO based on its rank
+        index = 0
+        while index < len(self.pifo) and packet.rank < self.pifo[index].rank:
+            index += 1
+        self.pifo.insert(index, packet)
     def token_based_selection(self):
         # Perform token-based selection by selecting the input port with the most tokens
         selected_queue = None
